@@ -1,0 +1,193 @@
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                 DSSAT CALIBRATION - QUICK REFERENCE CARD                      ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 🚀 GETTING STARTED (5 MINUTES)                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+1. Verify Setup:           source("verify_setup.R")
+2. Run Tutorial:           source("example_calibration.R")
+3. Start Calibration:      source("calibration_config.R")
+                          source("calibrate_dssat.R")
+                          results <- main()
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📁 KEY FILES                                                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+SCRIPTS:
+  • calibrate_dssat.R          Main calibration engine (18KB)
+  • calibration_config.R       Settings & parameters (11KB)
+  • dssat_helpers.R            DSSAT utilities (11KB)
+  • verify_setup.R             Setup checker (6.9KB)
+  • example_calibration.R      Tutorial (11KB)
+
+DOCUMENTATION:
+  • README_CALIBRATION.md      Main overview (START HERE!)
+  • QUICK_START.md             5-minute guide
+  • DSSAT_CALIBRATION_README.md Complete reference
+  • FILE_SUMMARY.md            Technical details
+  • INDEX.md                   Navigation guide
+
+DATA:
+  • data/observed_data.csv     Example data template
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ ⚙️ CONFIGURATION ESSENTIALS                                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+Edit calibration_config.R:
+
+  DSSAT_DIR <- "/path/to/dssat"              # DSSAT installation path
+  CROP_MODEL <- "MZCER048"                   # Crop model code
+  CALIB_PARAMS <- CALIB_PARAMS_MAIZE        # Parameter set
+  MAX_ITERATIONS <- 100                      # Optimization limit
+  OPTIMIZATION_METHOD <- "L-BFGS-B"         # Algorithm
+  EXPERIMENT_FILE <- "experiment.MZX"       # Your experiment file
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 🌾 SUPPORTED CROPS                                                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+CERES:      MZCER048 (Maize)    WHCER048 (Wheat)    RICER048 (Rice)
+            BACER048 (Barley)   SGCER048 (Sorghum)  MLCER048 (Millet)
+
+CROPGRO:    SBGRO048 (Soybean)  PNGRO048 (Peanut)   BNCER048 (Bean)
+            CHGRO048 (Chickpea) COGRO048 (Cotton)   TMGRO048 (Tomato)
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📊 DATA FORMAT (observed_data.csv)                                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+Experiment,Treatment,Date,Variable,Value,SD
+Field1,T1,2023-06-15,HWAM,8500,450
+Field1,T1,2023-06-15,CWAM,16000,800
+Field1,T1,2023-05-20,LAIX,4.2,0.3
+
+Required Columns: Experiment, Treatment, Date, Variable, Value
+Optional Column:  SD (standard deviation)
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📈 COMMON VARIABLES                                                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+HWAM   Grain yield (kg/ha)                 Range: 0-15,000
+CWAM   Total biomass (kg/ha)               Range: 0-30,000
+LAIX   Maximum leaf area index             Range: 0-8
+GNAM   Grain nitrogen (kg/ha)              Range: 0-300
+ADAT   Anthesis date (days after planting) Range: 40-100
+MDAT   Maturity date (days after planting) Range: 80-180
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 🔧 COMMON TASKS                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+BASIC CALIBRATION:
+  source("calibration_config.R")
+  source("calibrate_dssat.R")
+  results <- main()
+
+CUSTOM PARAMETERS:
+  CALIB_PARAMS <- list(
+    P1 = c(min = 250, max = 320, init = 285),
+    P5 = c(min = 700, max = 900, init = 800)
+  )
+  source("calibrate_dssat.R")
+  results <- main()
+
+VIEW RESULTS:
+  print(results$calibration$parameters)
+  print(results$report$statistics)
+
+SAVE ADDITIONAL PLOTS:
+  library(CroPlotR)
+  save_plot_png(results$report$plots$scatter, "my_plots", "_scatter")
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📊 STATISTICAL METRICS                                                       │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+R²       Coefficient of determination     >0.85 = Excellent, >0.70 = Good
+nRMSE    Normalized RMSE (%)              <10% = Excellent, <20% = Good
+EF       Modeling efficiency              >0.80 = Excellent, >0.50 = Good
+Bias     Mean prediction error            Close to 0 = Good
+RMSE     Root mean square error           Lower is better (units vary)
+MAE      Mean absolute error              Lower is better (units vary)
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ ⚠️ QUICK TROUBLESHOOTING                                                     │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+"DSSAT not found"           → Check DSSAT_DIR path, verify installation
+"Observed data not found"   → Check data/observed_data.csv exists
+"Package not installed"     → Run: install.packages(c("dplyr","tidyr","ggplot2"))
+"CroPlotR not found"        → Run: remotes::install_github("SticsRPacks/CroPlotR@*release")
+"Not converging"            → Increase MAX_ITERATIONS, widen parameter bounds
+"Poor fit"                  → Check data quality, verify input files
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 📂 OUTPUT STRUCTURE                                                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+calibration_output/
+├── calibration_report.txt           # Summary report
+├── calibrated_parameters.csv        # Optimized values
+├── plots/                           # All visualizations
+│   ├── *_dynamic.png               # Time-series
+│   ├── *_scatter.png               # 1:1 plots
+│   └── *_statistics.png            # Stats charts
+└── statistics/
+    └── calibration_statistics.csv   # Detailed metrics
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 🎓 LEARNING PATH                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+BEGINNER (0-2 hours):
+  1. Read README_CALIBRATION.md        (15 min)
+  2. Follow QUICK_START.md             (20 min)
+  3. Run verify_setup.R                (5 min)
+  4. Execute example_calibration.R     (30 min)
+  5. Try with example data             (30 min)
+
+INTERMEDIATE (2-5 hours):
+  1. Read DSSAT_CALIBRATION_README.md  (30 min)
+  2. Prepare your data                 (60 min)
+  3. Configure for your crop           (30 min)
+  4. Run calibration                   (60 min)
+  5. Analyze results                   (60 min)
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 🔗 USEFUL LINKS                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+DSSAT:     https://dssat.net/
+CroPlotR:  https://github.com/SticsRPacks/CroPlotR
+R Project: https://www.r-project.org/
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 💡 TIPS                                                                      │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+✓ Start with literature values for initial parameters
+✓ Use multiple seasons/locations for robust calibration
+✓ Always validate on independent data
+✓ Prioritize yield (HWAM) and phenology dates
+✓ Check parameter biological meaning
+✓ Document all data sources and assumptions
+✓ Keep original cultivar files as backup
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 🎯 ONE-LINER TO START                                                       │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+source("calibration_config.R"); source("calibrate_dssat.R"); main()
+
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║  For detailed help, see: README_CALIBRATION.md or DSSAT_CALIBRATION_README.md║
+║  Quick questions: See QUICK_START.md or INDEX.md                             ║
+║  Full navigation: INDEX.md                                                    ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+Version 1.0 | 2026-01-01 | Status: ✅ Production Ready
