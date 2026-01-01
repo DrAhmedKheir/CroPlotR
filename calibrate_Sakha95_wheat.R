@@ -453,7 +453,24 @@ load_observed_data <- function() {
   
   # Load existing data
   obs_data <- read.csv(obs_file, stringsAsFactors = FALSE)
-  obs_data$Date <- as.Date(obs_data$Date)
+  
+  # Convert Date column with error handling
+  tryCatch({
+    obs_data$Date <- as.Date(obs_data$Date)
+  }, error = function(e) {
+    message("⚠ Warning: Some dates could not be converted. Trying alternative formats...")
+    # Try multiple date formats
+    obs_data$Date <<- tryCatch({
+      as.Date(obs_data$Date, format = "%Y-%m-%d")
+    }, error = function(e2) {
+      tryCatch({
+        as.Date(obs_data$Date, format = "%m/%d/%Y")
+      }, error = function(e3) {
+        message("⚠ Using dates as-is (some may be NA)")
+        obs_data$Date
+      })
+    })
+  })
   
   cat("\n")
   cat("═══════════════════════════════════════════════════════════════\n")
