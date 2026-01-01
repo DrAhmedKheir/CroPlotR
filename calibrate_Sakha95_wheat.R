@@ -210,19 +210,17 @@ CALIB_PARAMS <- list(
 # Variables to match with observations
 CALIBRATION_VARS <- c(
   "HWAM",    # Grain yield (kg/ha)
-  "CWAM",    # Total above-ground biomass (kg/ha)
-  "LAIX",    # Maximum leaf area index
-  "GNAM",    # Grain N content (kg/ha)
+  "H#AM",    # Grain number per m² 
+  "HWUM",    # Individual grain weight (mg)
   "ADAT",    # Anthesis date (days after planting)
   "MDAT"     # Maturity date (days after planting)
 )
 
 # Variable weights for multi-site calibration
 VARIABLE_WEIGHTS <- list(
-  HWAM = 3.0,   # Yield most important
-  CWAM = 1.5,   # Biomass
-  LAIX = 1.0,   # LAI
-  GNAM = 1.2,   # Grain N
+  HWAM = 3.5,   # Yield most important
+  "H#AM" = 2.0, # Grain number very important for yield components
+  HWUM = 2.0,   # Grain weight very important for yield components
   ADAT = 2.5,   # Anthesis date very important for phenology
   MDAT = 2.5    # Maturity date very important for phenology
 )
@@ -500,12 +498,11 @@ run_dssat_model <- function(params, locations, obs_data) {
     sim_summary <- data.frame(
       Location = loc$name,
       Experiment = paste0(loc$code, "2001"),
-      Variable = c("HWAM", "CWAM", "LAIX", "GNAM", "ADAT", "MDAT"),
+      Variable = c("HWAM", "H#AM", "HWUM", "ADAT", "MDAT"),
       Value = c(
-        (6500 + params["G1"] * 120 + params["G2"] * 25) * yield_adj + rnorm(1, 0, 200),
-        (14000 + params["G3"] * 1200 + params["PHINT"] * 35) * biomass_adj + rnorm(1, 0, 400),
-        5.0 + params["PHINT"] * 0.012 + rnorm(1, 0, 0.3),
-        140 + params["G1"] * 3.5 + rnorm(1, 0, 12),
+        (6500 + params["G1"] * 150 + params["G2"] * 35) * yield_adj + rnorm(1, 0, 250),
+        (150000 + params["G1"] * 2500 + params["PHINT"] * 800) + rnorm(1, 0, 8000),
+        (35 + params["G2"] * 0.25) + rnorm(1, 0, 2),
         82 + params["P1V"] * 0.15 + params["P1D"] * 0.05 + rnorm(1, 0, 2.5),
         128 + params["P5"] * 0.012 + rnorm(1, 0, 3.5)
       ),
