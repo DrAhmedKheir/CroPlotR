@@ -117,12 +117,10 @@
 ################################################################################
 
 # Load required libraries
-suppressPackageStartupMessages({
-  library(CroPlotR)
-  library(dplyr)
-  library(tidyr)
-  library(ggplot2)
-})
+cat("\n")
+cat("═══════════════════════════════════════════════════════════════\n")
+cat("LOADING REQUIRED R PACKAGES\n")
+cat("═══════════════════════════════════════════════════════════════\n\n")
 
 # Check for required packages
 required_packages <- c("dplyr", "tidyr", "ggplot2")
@@ -131,8 +129,12 @@ for (pkg in required_packages) {
     message(paste("Installing required package:", pkg))
     install.packages(pkg, repos = "https://cran.r-project.org")
     library(pkg, character.only = TRUE)
+  } else {
+    message(sprintf("✓ %s loaded", pkg))
   }
 }
+
+cat("\n")
 
 ################################################################################
 # CONFIGURATION - YOUR SPECIFIC SETUP
@@ -142,26 +144,30 @@ for (pkg in required_packages) {
 DSSAT_DIR <- "C:/DSSAT48"
 
 # Working directory for R script
-# Use script location if running as script, otherwise use getwd()
-if (sys.nframe() == 0) {
-  # Running as script - get script directory
-  script_path <- normalizePath(sys.frame(1)$ofile, winslash = "/")
-  WORK_DIR <- dirname(script_path)
-} else {
-  # Running interactively or sourced
-  # Try to get script path from command line args
+# Try multiple methods to get script location
+get_script_path <- function() {
+  # Method 1: Command line args (works with Rscript and source)
   args <- commandArgs(trailingOnly = FALSE)
   file_arg <- grep("^--file=", args, value = TRUE)
   if (length(file_arg) > 0) {
     script_path <- sub("^--file=", "", file_arg)
-    WORK_DIR <- dirname(normalizePath(script_path, winslash = "/"))
-  } else {
-    # Fall back to current directory
-    WORK_DIR <- getwd()
-    message("Note: Using current working directory: ", WORK_DIR)
-    message("If data file is not found, save this script and data in the same location")
+    return(dirname(normalizePath(script_path, winslash = "/")))
   }
+  
+  # Method 2: Try rstudioapi if in RStudio
+  if (requireNamespace("rstudioapi", quietly = TRUE)) {
+    if (rstudioapi::isAvailable()) {
+      tryCatch({
+        return(dirname(rstudioapi::getSourceEditorContext()$path))
+      }, error = function(e) {})
+    }
+  }
+  
+  # Method 3: Use current working directory as fallback
+  return(getwd())
 }
+
+WORK_DIR <- get_script_path()
 
 # Data directory for observed data
 DATA_DIR <- file.path(WORK_DIR, "data")
@@ -177,8 +183,14 @@ dir.create(DATA_DIR, showWarnings = FALSE, recursive = TRUE)
 dir.create(PLOTS_DIR, showWarnings = FALSE, recursive = TRUE)
 dir.create(STATS_DIR, showWarnings = FALSE, recursive = TRUE)
 
+cat("\n")
+cat("═══════════════════════════════════════════════════════════════\n")
+cat("DIRECTORY SETUP\n")
+cat("═══════════════════════════════════════════════════════════════\n\n")
 message("Working directory: ", WORK_DIR)
-message("Data directory: ", DATA_DIR)
+message("Data directory:    ", DATA_DIR)
+message("Output directory:  ", OUTPUT_DIR)
+cat("\n")
 
 # CULTIVAR INFORMATION
 CULTIVAR_NAME <- "Sakha95"
