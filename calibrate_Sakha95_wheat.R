@@ -142,7 +142,26 @@ for (pkg in required_packages) {
 DSSAT_DIR <- "C:/DSSAT48"
 
 # Working directory for R script
-WORK_DIR <- getwd()
+# Use script location if running as script, otherwise use getwd()
+if (sys.nframe() == 0) {
+  # Running as script - get script directory
+  script_path <- normalizePath(sys.frame(1)$ofile, winslash = "/")
+  WORK_DIR <- dirname(script_path)
+} else {
+  # Running interactively or sourced
+  # Try to get script path from command line args
+  args <- commandArgs(trailingOnly = FALSE)
+  file_arg <- grep("^--file=", args, value = TRUE)
+  if (length(file_arg) > 0) {
+    script_path <- sub("^--file=", "", file_arg)
+    WORK_DIR <- dirname(normalizePath(script_path, winslash = "/"))
+  } else {
+    # Fall back to current directory
+    WORK_DIR <- getwd()
+    message("Note: Using current working directory: ", WORK_DIR)
+    message("If data file is not found, save this script and data in the same location")
+  }
+}
 
 # Data directory for observed data
 DATA_DIR <- file.path(WORK_DIR, "data")
@@ -157,6 +176,9 @@ dir.create(OUTPUT_DIR, showWarnings = FALSE, recursive = TRUE)
 dir.create(DATA_DIR, showWarnings = FALSE, recursive = TRUE)
 dir.create(PLOTS_DIR, showWarnings = FALSE, recursive = TRUE)
 dir.create(STATS_DIR, showWarnings = FALSE, recursive = TRUE)
+
+message("Working directory: ", WORK_DIR)
+message("Data directory: ", DATA_DIR)
 
 # CULTIVAR INFORMATION
 CULTIVAR_NAME <- "Sakha95"

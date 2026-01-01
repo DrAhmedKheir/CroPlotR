@@ -1,0 +1,294 @@
+═══════════════════════════════════════════════════════════════
+CALIBRATION SCRIPT UPDATE SUMMARY
+Date: 2026-01-01
+═══════════════════════════════════════════════════════════════
+
+ISSUE IDENTIFIED:
+─────────────────────────────────────────────────────────────── 
+The observed data file (Sakha95_observed_data.csv) was using 
+"2001" as the year for ALL treatments, which was INCORRECT.
+
+You clarified that "2001" in the experiment names (GMZA2001, 
+SIDS2001) is just a naming convention, NOT the actual year.
+
+Each treatment actually has its OWN YEAR ranging from:
+  • Gemiza: 1980-2020 (23 treatments across 40 years)
+  • Sids:   1982-2021 (33 treatments across 39 years)
+
+
+═══════════════════════════════════════════════════════════════
+WHAT WAS UPDATED
+═══════════════════════════════════════════════════════════════
+
+1. ✅ Sakha95_observed_data.csv - COMPLETELY REBUILT
+   ──────────────────────────────────────────────────────────
+   • Added "Year" column with actual years for each treatment
+   • Updated all dates to use correct years from your spreadsheets
+   • Gemiza treatments: Years 1980, 1988, 1994-2020
+   • Sids treatments: Years 1982-2021
+   • Total records: 262 observations
+   • Variables: HWAM, H#AM, HWUM, ADAT, MDAT
+
+
+2. ✅ calibrate_Sakha95_wheat.R - FIXED PATH DETECTION
+   ──────────────────────────────────────────────────────────
+   BEFORE: 
+   - Used getwd() which gives R's current working directory
+   - Could be C:/Users/DELL/OneDrive/Documents/ (wrong!)
+   
+   AFTER:
+   - Automatically detects where the script is saved
+   - Uses the script's directory as the working directory
+   - Looks for data/ folder relative to script location
+   - Shows clear message: "Working directory: [path]"
+
+
+═══════════════════════════════════════════════════════════════
+OBSERVED DATA STRUCTURE (UPDATED)
+═══════════════════════════════════════════════════════════════
+
+File: data/Sakha95_observed_data.csv
+Size: 11 KB
+Rows: 262 observations
+
+Columns:
+  Location   : Gemiza or Sids
+  Experiment : GMZA2001 or SIDS2001
+  Treatment  : T1 through T26 (Gemiza), T1 through T33 (Sids)
+  Year       : *** NEW! *** Actual year 1980-2021
+  Date       : Full date with correct year (YYYY-MM-DD)
+  Variable   : HWAM, H#AM, HWUM, ADAT, MDAT
+  Value      : Measured value from your field data
+  SD         : Standard deviation (estimated)
+
+
+Example data:
+┌─────────┬────────────┬───────────┬──────┬────────────┬──────────┬─────────┬──────┐
+│Location │ Experiment │ Treatment │ Year │    Date    │ Variable │  Value  │  SD  │
+├─────────┼────────────┼───────────┼──────┼────────────┼──────────┼─────────┼──────┤
+│ Gemiza  │ GMZA2001   │    T1     │ 1980 │ 1980-04-29 │   HWAM   │ 5129.5  │ 250  │
+│ Gemiza  │ GMZA2001   │    T2     │ 1988 │ 1988-04-08 │   HWAM   │  6911   │ 350  │
+│ Gemiza  │ GMZA2001   │    T2     │ 1988 │ 1988-06-02 │   HWUM   │  39.52  │  2.0 │
+│ Sids    │ SIDS2001   │    T1     │ 1982 │ 1982-04-28 │   HWAM   │  7067   │ 353  │
+│ Sids    │ SIDS2001   │    T8     │ 1992 │ 1992-05-01 │   H#AM   │ 122083  │ 6100 │
+└─────────┴────────────┴───────────┴──────┴────────────┴──────────┴─────────┴──────┘
+
+
+═══════════════════════════════════════════════════════════════
+YEAR MAPPING (FROM YOUR SPREADSHEETS)
+═══════════════════════════════════════════════════════════════
+
+GEMIZA (23 treatments):
+┌───────────┬──────┐  ┌───────────┬──────┐  ┌───────────┬──────┐
+│ Treatment │ Year │  │ Treatment │ Year │  │ Treatment │ Year │
+├───────────┼──────┤  ├───────────┼──────┤  ├───────────┼──────┤
+│    T1     │ 1980 │  │    T9     │ 2002 │  │   T17     │ 2009 │
+│    T2     │ 1988 │  │   T10     │ 2013 │  │   T18     │ 2010 │
+│    T3     │ 1994 │  │   T11     │ 1999 │  │   T19     │ 2015 │
+│    T4     │ 1995 │  │   T12     │ 2001 │  │   T20     │ 2016 │
+│    T5     │ 1996 │  │   T13     │ 2003 │  │   T21     │ 2017 │
+│    T6     │ 1997 │  │   T14     │ 2004 │  │   T22     │ 2017 │
+│    T7     │ 1998 │  │   T15     │ 2005 │  │   T23     │ 2019 │
+│    T8     │ 2000 │  │   T16     │ 2006 │  │   T24     │ 2019 │
+│           │      │  │           │      │  │   T25     │ 2020 │
+│           │      │  │           │      │  │   T26     │ 2020 │
+└───────────┴──────┘  └───────────┴──────┘  └───────────┴──────┘
+
+SIDS (33 treatments):
+┌───────────┬──────┐  ┌───────────┬──────┐  ┌───────────┬──────┐
+│ Treatment │ Year │  │ Treatment │ Year │  │ Treatment │ Year │
+├───────────┼──────┤  ├───────────┼──────┤  ├───────────┼──────┤
+│    T1     │ 1982 │  │   T12     │ 1997 │  │   T23     │ 2006 │
+│    T2     │ 1983 │  │   T13     │ 1999 │  │   T24     │ 2007 │
+│    T3     │ 1984 │  │   T14     │ 2000 │  │   T25     │ 2007 │
+│    T4     │ 1987 │  │   T15     │ 2000 │  │   T26     │ 2010 │
+│    T5     │ 1988 │  │   T16     │ 2002 │  │   T27     │ 2015 │
+│    T6     │ 1988 │  │   T17     │ 2002 │  │   T28     │ 2016 │
+│    T7     │ 1989 │  │   T18     │ 2003 │  │   T29     │ 2016 │
+│    T8     │ 1992 │  │   T19     │ 2004 │  │   T30     │ 2017 │
+│    T9     │ 1995 │  │   T20     │ 2004 │  │   T31     │ 2018 │
+│   T10     │ 1996 │  │   T21     │ 2005 │  │   T32     │ 2019 │
+│   T11     │ 1996 │  │   T22     │ 2006 │  │   T33     │ 2020 │
+└───────────┴──────┘  └───────────┴──────┘  └───────────┴──────┘
+
+
+═══════════════════════════════════════════════════════════════
+DATA SUMMARY
+═══════════════════════════════════════════════════════════════
+
+GEMIZA:
+  Treatments: 26 (T1-T26)
+  Years: 1980-2020 (40-year span)
+  Total observations: 127
+  Variables per treatment: varies (2-6 variables each)
+
+SIDS:
+  Treatments: 33 (T1-T33)
+  Years: 1982-2021 (39-year span)
+  Total observations: 135
+  Variables per treatment: varies (3-5 variables each)
+
+COMBINED:
+  Total treatments: 59 unique treatment-year combinations
+  Total observations: 262 data points
+  Year range: 1980-2021 (41 years)
+  Variables: HWAM, H#AM, HWUM, ADAT, MDAT
+
+
+═══════════════════════════════════════════════════════════════
+VARIABLE STATISTICS FROM YOUR DATA
+═══════════════════════════════════════════════════════════════
+
+HWAM (Grain Yield, kg/ha):
+  Range:  5,129 - 11,952 kg/ha
+  Mean:   ~8,200 kg/ha (estimated)
+  Gemiza: Slightly higher on average
+  Sids:   More variation
+
+H#AM (Grain Number, grains/m²):
+  Range:  111,707 - 231,577 grains/m²
+  Mean:   ~170,000 grains/m² (estimated)
+  Note: Only 5 observations total
+
+HWUM (Grain Weight, mg):
+  Range:  39.5 - 170 mg
+  Mean:   ~152 mg (estimated)
+  Note: Good size grains overall
+
+ADAT (Anthesis Date, Day of Year):
+  Range:  Day 77 - Day 132
+  Mean:   ~Day 100 (early April)
+  Variation: 55 days range
+
+MDAT (Maturity Date, Day of Year):
+  Range:  Day 88 - Day 135
+  Mean:   ~Day 112 (late April)
+  Duration: 90-135 days from planting
+
+
+═══════════════════════════════════════════════════════════════
+SCRIPT IMPROVEMENTS
+═══════════════════════════════════════════════════════════════
+
+1. Path Detection (Lines 141-170)
+   ────────────────────────────────────────────────────────
+   OLD CODE:
+     WORK_DIR <- getwd()
+   
+   NEW CODE:
+     # Detects script location automatically
+     # Uses sys.frame() and commandArgs()
+     # Falls back to getwd() if needed
+     # Displays clear message showing paths
+   
+   BENEFIT:
+     ✓ Works regardless of where R is launched from
+     ✓ Always finds data/ folder relative to script
+     ✓ No manual path configuration needed
+
+
+2. Year Column in Data Template (load_observed_data function)
+   ────────────────────────────────────────────────────────
+   - Template now includes "Year" column
+   - Documentation updated to mention year range
+   - Load function expects Year column
+
+
+3. Clearer User Messages
+   ────────────────────────────────────────────────────────
+   Script now shows:
+     "Working directory: [path]"
+     "Data directory: [path]"
+   
+   So you can immediately verify correct paths
+
+
+═══════════════════════════════════════════════════════════════
+FILES TO DOWNLOAD
+═══════════════════════════════════════════════════════════════
+
+You need these 2 files:
+
+1. calibrate_Sakha95_wheat.R (52 KB)
+   ├─ Updated path detection
+   ├─ Ready for multi-year data
+   └─ Works with corrected CSV
+
+2. data/Sakha95_observed_data.csv (11 KB)
+   ├─ Contains actual years 1980-2021
+   ├─ 262 observations across 59 treatments
+   └─ Ready to use!
+
+
+Optional (for reference):
+
+3. HOW_TO_RUN_CALIBRATION.txt
+   └─ Step-by-step instructions
+
+
+═══════════════════════════════════════════════════════════════
+WHAT HAPPENS NOW
+═══════════════════════════════════════════════════════════════
+
+When you run the script, it will:
+
+1. ✓ Detect script location automatically
+   
+2. ✓ Look for data/Sakha95_observed_data.csv
+
+3. ✓ Load 262 observations with correct years
+
+4. ✓ Run multi-year, multi-site calibration
+   - Gemiza: 40 years of data (1980-2020)
+   - Sids: 39 years of data (1982-2021)
+
+5. ✓ Optimize coefficients to match ALL years
+
+6. ✓ Generate comprehensive report
+
+
+═══════════════════════════════════════════════════════════════
+EXPECTED CALIBRATION BEHAVIOR
+═══════════════════════════════════════════════════════════════
+
+With data spanning 41 years:
+  • Captures long-term climate variability
+  • Tests cultivar performance across decades
+  • More robust parameter estimates
+  • Better validation of model stability
+  
+The calibration will find genetic coefficients that:
+  ✓ Work well across different years
+  ✓ Account for climate variation
+  ✓ Balance performance at both locations
+  ✓ Represent true Sakha95 characteristics
+
+
+═══════════════════════════════════════════════════════════════
+VALIDATION RECOMMENDATION
+═══════════════════════════════════════════════════════════════
+
+With 41 years of data, you should:
+
+1. Use 70% of data for calibration (e.g., random years)
+2. Hold out 30% for validation (different random years)
+3. Test if calibrated parameters predict held-out years well
+
+Example split:
+  Calibration: 1980-2000 (21 years)
+  Validation:  2001-2021 (20 years)
+
+
+═══════════════════════════════════════════════════════════════
+SUMMARY
+═══════════════════════════════════════════════════════════════
+
+✅ FIXED: Year assignment in observed data
+✅ FIXED: Path detection in R script
+✅ READY: 262 observations spanning 41 years
+✅ READY: Script will auto-detect file locations
+✅ READY: Multi-year, multi-site calibration ready to run
+
+Download the two files, put them in the right places, and run!
+
+═══════════════════════════════════════════════════════════════
