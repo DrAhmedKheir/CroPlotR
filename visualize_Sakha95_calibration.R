@@ -56,6 +56,7 @@ if (file.exists("R/DSSAT_wrapper.R")) {
   cat("  ✓ Loaded DSSAT wrapper from current directory\n")
 } else {
   stop("ERROR: Cannot find DSSAT_wrapper.R! Please check your working directory.")
+}
 
 # Load calibration results
 if (!file.exists("Sakha95_CORRECTED_results/calibration.RData")) {
