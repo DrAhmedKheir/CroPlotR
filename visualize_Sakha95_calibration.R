@@ -133,48 +133,49 @@ cat("  ✓ Loaded observations for", length(situation_names), "situations\n\n")
 
 cat("Step 4: Running simulations with INITIAL parameters...\n")
 cat("  This will take 10-15 minutes...\n")
-cat("  Progress: ")
 
-sim_initial_list <- list()
-errors_initial <- 0
+# Set parameters as named vector
+param_values <- c(
+  P1V = initial_params["P1V"],
+  P1D = initial_params["P1D"],
+  P5 = initial_params["P5"],
+  G1 = initial_params["G1"],
+  G2 = initial_params["G2"],
+  G3 = initial_params["G3"],
+  PHINT = initial_params["PHINT"]
+)
 
-for (i in seq_along(situation_names)) {
-  situation <- situation_names[i]
-  
-  # Progress indicator
-  if (i %% 5 == 0) cat(i, "")
-  
-  # Set parameters as named vector (not data.frame)
-  param_values <- c(
-    P1V = initial_params["P1V"],
-    P1D = initial_params["P1D"],
-    P5 = initial_params["P5"],
-    G1 = initial_params["G1"],
-    G2 = initial_params["G2"],
-    G3 = initial_params["G3"],
-    PHINT = initial_params["PHINT"]
+# Run DSSAT for ALL situations at once (like in calibration script)
+cat("  Running DSSAT...\n")
+sim_initial_result <- tryCatch({
+  DSSAT_wrapper(
+    param_values = param_values,
+    model_options = model_options,
+    situation = situation_names,
+    sit_var_dates_mask = obs_list
   )
-  
-  # Run DSSAT (correct function signature)
-  tryCatch({
-    sim <- DSSAT_wrapper(
-      param_values = param_values,
-      model_options = model_options,
-      situation = situation
-    )
-    
-    if (!is.null(sim) && nrow(sim) > 0) {
-      sim$Situation <- situation
-      sim_initial_list[[situation]] <- sim
-    } else {
-      errors_initial <- errors_initial + 1
-    }
-  }, error = function(e) {
-    errors_initial <- errors_initial + 1
-  })
+}, error = function(e) {
+  list(error = TRUE, message = as.character(e))
+})
+
+if (!is.null(sim_initial_result$error) && sim_initial_result$error) {
+  cat("  ❌ Error:", sim_initial_result$message, "\n")
+  stop("Initial simulations failed")
 }
 
-cat("\n  ✓ Initial simulations complete (", errors_initial, "errors )\n\n")
+# Extract sim_list from result
+sim_initial_list <- sim_initial_result$sim_list
+
+cat("  ✓ Initial simulations complete\n")
+cat("  Debug: sim_initial_list has", length(sim_initial_list), "elements\n")
+if (length(sim_initial_list) > 0) {
+  first_sim <- sim_initial_list[[1]]
+  cat("  Debug: First simulation structure - class:", class(first_sim), "\n")
+  if (is.data.frame(first_sim)) {
+    cat("  Debug: First simulation has", nrow(first_sim), "rows and columns:", paste(names(first_sim)[1:min(10, ncol(first_sim))], collapse = ", "), "...\n")
+  }
+}
+cat("\n")
 
 # ==============================================================================
 # STEP 5: RUN SIMULATIONS WITH CALIBRATED PARAMETERS
@@ -182,48 +183,49 @@ cat("\n  ✓ Initial simulations complete (", errors_initial, "errors )\n\n")
 
 cat("Step 5: Running simulations with CALIBRATED parameters...\n")
 cat("  This will take 10-15 minutes...\n")
-cat("  Progress: ")
 
-sim_calibrated_list <- list()
-errors_calibrated <- 0
+# Set parameters as named vector
+param_values <- c(
+  P1V = calibrated_params["P1V"],
+  P1D = calibrated_params["P1D"],
+  P5 = calibrated_params["P5"],
+  G1 = calibrated_params["G1"],
+  G2 = calibrated_params["G2"],
+  G3 = calibrated_params["G3"],
+  PHINT = calibrated_params["PHINT"]
+)
 
-for (i in seq_along(situation_names)) {
-  situation <- situation_names[i]
-  
-  # Progress indicator
-  if (i %% 5 == 0) cat(i, "")
-  
-  # Set parameters as named vector (not data.frame)
-  param_values <- c(
-    P1V = calibrated_params["P1V"],
-    P1D = calibrated_params["P1D"],
-    P5 = calibrated_params["P5"],
-    G1 = calibrated_params["G1"],
-    G2 = calibrated_params["G2"],
-    G3 = calibrated_params["G3"],
-    PHINT = calibrated_params["PHINT"]
+# Run DSSAT for ALL situations at once (like in calibration script)
+cat("  Running DSSAT...\n")
+sim_calibrated_result <- tryCatch({
+  DSSAT_wrapper(
+    param_values = param_values,
+    model_options = model_options,
+    situation = situation_names,
+    sit_var_dates_mask = obs_list
   )
-  
-  # Run DSSAT (correct function signature)
-  tryCatch({
-    sim <- DSSAT_wrapper(
-      param_values = param_values,
-      model_options = model_options,
-      situation = situation
-    )
-    
-    if (!is.null(sim) && nrow(sim) > 0) {
-      sim$Situation <- situation
-      sim_calibrated_list[[situation]] <- sim
-    } else {
-      errors_calibrated <- errors_calibrated + 1
-    }
-  }, error = function(e) {
-    errors_calibrated <- errors_calibrated + 1
-  })
+}, error = function(e) {
+  list(error = TRUE, message = as.character(e))
+})
+
+if (!is.null(sim_calibrated_result$error) && sim_calibrated_result$error) {
+  cat("  ❌ Error:", sim_calibrated_result$message, "\n")
+  stop("Calibrated simulations failed")
 }
 
-cat("\n  ✓ Calibrated simulations complete (", errors_calibrated, "errors )\n\n")
+# Extract sim_list from result
+sim_calibrated_list <- sim_calibrated_result$sim_list
+
+cat("  ✓ Calibrated simulations complete\n")
+cat("  Debug: sim_calibrated_list has", length(sim_calibrated_list), "elements\n")
+if (length(sim_calibrated_list) > 0) {
+  first_sim <- sim_calibrated_list[[1]]
+  cat("  Debug: First simulation structure - class:", class(first_sim), "\n")
+  if (is.data.frame(first_sim)) {
+    cat("  Debug: First simulation has", nrow(first_sim), "rows and columns:", paste(names(first_sim)[1:min(10, ncol(first_sim))], collapse = ", "), "...\n")
+  }
+}
+cat("\n")
 
 # ==============================================================================
 # STEP 6: PREPARE DATA FOR PLOTTING
