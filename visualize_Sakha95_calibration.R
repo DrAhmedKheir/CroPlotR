@@ -118,12 +118,11 @@ situation_names <- c(
   paste0("SIDS2001_", sids_treatments)
 )
 
-# Read observations
+# Read observations (using correct function signature)
 obs_list <- read_obs(
-  experiment_names = experiments,
-  experiment_path = "C:/DSSAT48/Wheat",
-  read_end_season = TRUE,  # Read .WHA files
-  read_during_season = FALSE
+  model_options = model_options,
+  situation = situation_names,
+  read_end_season = TRUE  # Read .WHA files only
 )
 
 cat("  ✓ Loaded observations for", length(situation_names), "situations\n\n")
@@ -145,13 +144,8 @@ for (i in seq_along(situation_names)) {
   # Progress indicator
   if (i %% 5 == 0) cat(i, "")
   
-  # Parse situation name
-  parts <- strsplit(situation, "_")[[1]]
-  exp_name <- parts[1]
-  trno <- as.integer(parts[2])
-  
-  # Set parameters
-  param_values <- data.frame(
+  # Set parameters as named vector (not data.frame)
+  param_values <- c(
     P1V = initial_params["P1V"],
     P1D = initial_params["P1D"],
     P5 = initial_params["P5"],
@@ -161,13 +155,12 @@ for (i in seq_along(situation_names)) {
     PHINT = initial_params["PHINT"]
   )
   
-  # Run DSSAT
+  # Run DSSAT (correct function signature)
   tryCatch({
     sim <- DSSAT_wrapper(
       param_values = param_values,
       model_options = model_options,
-      sit_name = exp_name,
-      treatments = trno
+      situation = situation
     )
     
     if (!is.null(sim) && nrow(sim) > 0) {
@@ -200,13 +193,8 @@ for (i in seq_along(situation_names)) {
   # Progress indicator
   if (i %% 5 == 0) cat(i, "")
   
-  # Parse situation name
-  parts <- strsplit(situation, "_")[[1]]
-  exp_name <- parts[1]
-  trno <- as.integer(parts[2])
-  
-  # Set parameters
-  param_values <- data.frame(
+  # Set parameters as named vector (not data.frame)
+  param_values <- c(
     P1V = calibrated_params["P1V"],
     P1D = calibrated_params["P1D"],
     P5 = calibrated_params["P5"],
@@ -216,13 +204,12 @@ for (i in seq_along(situation_names)) {
     PHINT = calibrated_params["PHINT"]
   )
   
-  # Run DSSAT
+  # Run DSSAT (correct function signature)
   tryCatch({
     sim <- DSSAT_wrapper(
       param_values = param_values,
       model_options = model_options,
-      sit_name = exp_name,
-      treatments = trno
+      situation = situation
     )
     
     if (!is.null(sim) && nrow(sim) > 0) {
