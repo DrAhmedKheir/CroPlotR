@@ -241,6 +241,11 @@ for (situation in names(obs_list)) {
   }
 }
 
+cat("  Observations loaded:", nrow(obs_df), "rows\n")
+if (nrow(obs_df) > 0) {
+  cat("  Observation columns:", paste(names(obs_df), collapse = ", "), "\n")
+}
+
 # Extract final values from simulations (for end-of-season comparison)
 extract_final <- function(sim_list) {
   final_df <- data.frame()
@@ -259,48 +264,115 @@ extract_final <- function(sim_list) {
 sim_initial_final <- extract_final(sim_initial_list)
 sim_calibrated_final <- extract_final(sim_calibrated_list)
 
+cat("  Initial simulations:", nrow(sim_initial_final), "final rows\n")
+cat("  Calibrated simulations:", nrow(sim_calibrated_final), "final rows\n")
+
+if (nrow(sim_initial_final) > 0) {
+  cat("  Simulation columns:", paste(names(sim_initial_final)[1:min(10, ncol(sim_initial_final))], collapse = ", "), "...\n")
+}
+
 # Variables to plot
 variables <- c("HWAM", "ADAT", "H#AM", "HWUM")
+
+cat("  Checking variable availability...\n")
 
 # Create comparison dataframes
 compare_df <- data.frame()
 
 for (var in variables) {
   # Check if variable exists in observations
-  if (!(var %in% names(obs_df))) next
+  if (!(var %in% names(obs_df))) {
+    cat("    ⚠ Variable", var, "not in observations, skipping\n")
+    next
+  }
   
   # Get observed values
   obs_var <- obs_df[, c("Situation", var)]
   names(obs_var) <- c("Situation", "Observed")
   obs_var <- obs_var[!is.na(obs_var$Observed), ]
   
-  if (nrow(obs_var) == 0) next
+  if (nrow(obs_var) == 0) {
+    cat("    ⚠ Variable", var, "has no observations, skipping\n")
+    next
+  }
+  
+  # Check if variable exists in simulations
+  if (!(var %in% names(sim_initial_final))) {
+    cat("    ⚠ Variable", var, "not in simulations, skipping\n")
+    next
+  }
   
   # Get initial simulated values
-  if (var %in% names(sim_initial_final)) {
-    sim_init_var <- sim_initial_final[, c("Situation", var)]
-    names(sim_init_var) <- c("Situation", "Initial")
+  sim_init_var <- sim_initial_final[, c("Situation", var)]
+  names(sim_init_var) <- c("Situation", "Initial")
+  
+  # Merge
+  merged <- merge(obs_var, sim_init_var, by = "Situation")
+  
+  if (nrow(merged) == 0) {
+    cat("    ⚠ Variable", var, "has no matching situations, skipping\n")
+    next
+  }
+  
+  # Get calibrated simulated values
+  if (var %in% names(sim_calibrated_final)) {
+    sim_cal_var <- sim_calibrated_final[, c("Situation", var)]
+    names(sim_cal_var) <- c("Situation", "Calibrated")
     
-    # Merge
-    merged <- merge(obs_var, sim_init_var, by = "Situation")
+    merged <- merge(merged, sim_cal_var, by = "Situation")
     
-    # Get calibrated simulated values
-    if (var %in% names(sim_calibrated_final)) {
-      sim_cal_var <- sim_calibrated_final[, c("Situation", var)]
-      names(sim_cal_var) <- c("Situation", "Calibrated")
-      
-      merged <- merge(merged, sim_cal_var, by = "Situation")
-      
+    if (nrow(merged) > 0) {
       merged$Variable <- var
       compare_df <- rbind(compare_df, merged)
+      cat("    ✓ Variable", var, ":", nrow(merged), "comparison points\n")
     }
   }
 }
 
 # Parse location from situation
-compare_df$Location <- ifelse(grepl("GMZA", compare_df$Situation), "Gemiza", "Sids")
+if (nrow(compare_df) > 0) {
+  compare_df$Location <- ifelse(grepl("GMZA", compare_df$Situation), "Gemiza", "Sids")
+}
 
 cat("  ✓ Data prepared:", nrow(compare_df), "comparison points\n\n")
+
+# If no data, stop with helpful message
+if (nrow(compare_df) == 0) {
+  cat("\n")
+  cat("╔═══════════════════════════════════════════════════════════════╗\n")
+  cat("║  WARNING: No comparison data available                      ║\n")
+  cat("╚═══════════════════════════════════════════════════════════════╝\n")
+  cat("\n")
+  cat("Possible reasons:\n")
+  cat("  1. Variable names don't match between obs and sim\n")
+  cat("  2. Situation names don't match\n")
+  cat("  3. No overlapping data\n")
+  cat("\n")
+  cat("Debug information saved to: Sakha95_CORRECTED_results/debug_info.txt\n")
+  
+  # Save debug info
+  debug_dir <- "Sakha95_CORRECTED_results"
+  if (!dir.exists(debug_dir)) dir.create(debug_dir, recursive = TRUE)
+  
+  sink(file.path(debug_dir, "debug_info.txt"))
+  cat("=== OBSERVATIONS ===\n")
+  cat("Rows:", nrow(obs_df), "\n")
+  cat("Columns:", paste(names(obs_df), collapse = ", "), "\n")
+  cat("Situations:", paste(head(unique(obs_df$Situation), 10), collapse = ", "), "...\n\n")
+  
+  cat("=== SIMULATIONS (Initial) ===\n")
+  cat("Rows:", nrow(sim_initial_final), "\n")
+  cat("Columns:", paste(names(sim_initial_final), collapse = ", "), "\n")
+  cat("Situations:", paste(head(unique(sim_initial_final$Situation), 10), collapse = ", "), "...\n\n")
+  
+  cat("=== SIMULATIONS (Calibrated) ===\n")
+  cat("Rows:", nrow(sim_calibrated_final), "\n")
+  cat("Columns:", paste(names(sim_calibrated_final), collapse = ", "), "\n")
+  cat("Situations:", paste(head(unique(sim_calibrated_final$Situation), 10), collapse = ", "), "...\n")
+  sink()
+  
+  stop("No comparison data available. Check debug_info.txt for details.")
+}
 
 # ==============================================================================
 # STEP 7: CALCULATE STATISTICS
@@ -349,7 +421,8 @@ stats_table <- data.frame()
 for (var in variables) {
   var_data <- compare_df[compare_df$Variable == var, ]
   
-  if (nrow(var_data) == 0) next
+  # Handle case where subsetting returns NULL or has 0 rows
+  if (is.null(var_data) || !is.data.frame(var_data) || nrow(var_data) == 0) next
   
   # Initial stats
   stats_init <- calculate_stats(var_data$Observed, var_data$Initial)
@@ -364,11 +437,14 @@ for (var in variables) {
   stats_table <- rbind(stats_table, stats_init, stats_cal)
 }
 
-# Reorder columns
-stats_table <- stats_table[, c("Variable", "Type", "N", "RMSE", "nRMSE", "R2", "Bias", "MAE", "EF")]
-
-print(stats_table)
-cat("\n  ✓ Statistics calculated\n\n")
+# Reorder columns if we have any stats
+if (nrow(stats_table) > 0) {
+  stats_table <- stats_table[, c("Variable", "Type", "N", "RMSE", "nRMSE", "R2", "Bias", "MAE", "EF")]
+  print(stats_table)
+  cat("\n  ✓ Statistics calculated\n\n")
+} else {
+  cat("\n  ⚠ No statistics could be calculated\n\n")
+}
 
 # ==============================================================================
 # STEP 8: CREATE PLOTS
