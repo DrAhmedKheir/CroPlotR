@@ -134,16 +134,8 @@ cat("  ✓ Loaded observations for", length(situation_names), "situations\n\n")
 cat("Step 4: Running simulations with INITIAL parameters...\n")
 cat("  This will take 10-15 minutes...\n")
 
-# Set parameters as named vector
-param_values <- c(
-  P1V = initial_params["P1V"],
-  P1D = initial_params["P1D"],
-  P5 = initial_params["P5"],
-  G1 = initial_params["G1"],
-  G2 = initial_params["G2"],
-  G3 = initial_params["G3"],
-  PHINT = initial_params["PHINT"]
-)
+# Set parameters as named vector (use directly, don't re-name)
+param_values <- initial_params
 
 # Run DSSAT for ALL situations at once (like in calibration script)
 cat("  Running DSSAT...\n")
@@ -184,16 +176,8 @@ cat("\n")
 cat("Step 5: Running simulations with CALIBRATED parameters...\n")
 cat("  This will take 10-15 minutes...\n")
 
-# Set parameters as named vector
-param_values <- c(
-  P1V = calibrated_params["P1V"],
-  P1D = calibrated_params["P1D"],
-  P5 = calibrated_params["P5"],
-  G1 = calibrated_params["G1"],
-  G2 = calibrated_params["G2"],
-  G3 = calibrated_params["G3"],
-  PHINT = calibrated_params["PHINT"]
-)
+# Set parameters as named vector (use directly, don't re-name)
+param_values <- calibrated_params
 
 # Run DSSAT for ALL situations at once (like in calibration script)
 cat("  Running DSSAT...\n")
