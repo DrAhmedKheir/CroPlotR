@@ -1,327 +1,150 @@
-# 🚀 Sakha95 CroptimizR Calibration - Quick Start Guide
+# 🚀 Quick Start Guide
 
-**Print this page for quick reference!**
+Get your Sakha95 calibration running in 5 minutes!
 
----
+## Prerequisites Checklist
 
-## ⚡ 5-Minute Setup
+- [ ] R installed (version ≥ 4.0)
+- [ ] DSSAT 4.8 installed at `C:/DSSAT48`
+- [ ] DSSAT-wrapper functions downloaded
+- [ ] Field data files in place
 
-### 1. Download Files (2 min)
-```
-From Cursor workspace → Download:
-✓ calibrate_Sakha95_CroptimizR.R
-✓ README_CroptimizR_CALIBRATION.md
-✓ FINAL_DELIVERY_SUMMARY.md
-✓ QUICK_START_GUIDE.md
+## Step-by-Step Setup
 
-Save all to: C:\DSSAT48\
-```
-
-### 2. Get DSSAT Wrapper (2 min)
-```
-Go to: https://github.com/DrAhmedKheir/DSSAT-wrapper
-Click: Code → Download ZIP
-Extract: R/DSSAT_wrapper.R
-Save to: C:\DSSAT48\DSSAT_wrapper\DSSAT_wrapper.R
-```
-
-### 3. Run Script (1 min)
-```r
-# In RStudio:
-setwd("C:/DSSAT48")
-source("calibrate_Sakha95_CroptimizR.R")
-```
-
-**✅ Setup complete! Follow on-screen instructions.**
-
----
-
-## 🎯 Your Data Summary
-
-| Item | Value |
-|------|-------|
-| **Cultivar** | Sakha95 (SK0010) |
-| **Locations** | Gemiza (26 treatments), Sids (33 treatments) |
-| **Years** | 1980-2021 (41 years) |
-| **Observations** | 218 total |
-| **Variables** | HWAM, H#AM, HWUM, ADAT, MDAT |
-| **Parameters** | P1V, P1D, P5, G1, G2, G3, PHINT |
-
----
-
-## 📝 Essential File Paths
+### 1. Install R Packages (2 minutes)
 
 ```r
-# Main files
-DSSAT_DIR     <- "C:/DSSAT48"
-WORK_DIR      <- "C:/DSSAT48"
-DATA_DIR      <- "C:/DSSAT48/data"
-OUTPUT_DIR    <- "C:/DSSAT48/Sakha95_CroptimizR_output"
-
-# Wrapper
-WRAPPER_FILE  <- "C:/DSSAT48/DSSAT_wrapper/DSSAT_wrapper.R"
-
-# Data
-OBS_DATA      <- "C:/DSSAT48/data/Sakha95_observed_data.csv"
-
-# DSSAT files
-CULTIVAR_FILE <- "C:/DSSAT48/Genotype/WHCER048.CUL"
-DSSAT_EXE     <- "C:/DSSAT48/DSCSM048.EXE"
+# Open R or RStudio
+install.packages(c("nloptr", "dplyr", "ggplot2", "tidyr", "gridExtra"))
 ```
 
----
-
-## 🔧 Configuration
-
-### Parameters to Calibrate
+### 2. Download DSSAT-wrapper (1 minute)
 
 ```r
-P1V    = c(min=0,   max=45,  init=25)   # Vernalization (days)
-P1D    = c(min=40,  max=90,  init=70)   # Photoperiod (%)
-P5     = c(min=450, max=650, init=550)  # Grain filling (°C·d)
-G1     = c(min=18,  max=30,  init=24)   # Kernel number
-G2     = c(min=38,  max=52,  init=45)   # Kernel weight (mg)
-G3     = c(min=1.5, max=3.0, init=2.2)  # Stem weight (g)
-PHINT  = c(min=85,  max=105, init=95)   # Phylochron (°C·d)
-```
-
-### Calibration Settings
-
-```r
-method      = "simplex"        # Nelder-Mead optimization
-max_iter    = 500              # Maximum iterations
-criterion   = likelihood_log_ciidn  # Objective function
-```
-
----
-
-## 🎯 Critical Steps
-
-### Before Running Calibration
-
-☐ **Verify DSSAT works**
-```r
-# Test DSSAT installation
-file.exists("C:/DSSAT48/DSCSM048.EXE")  # Should be TRUE
-```
-
-☐ **Check data loaded**
-```r
-# After running setup script
-nrow(obs_raw)  # Should be 218
-length(obs_list)  # Should be ~59
-```
-
-☐ **Source wrapper**
-```r
-source("C:/DSSAT48/DSSAT_wrapper/DSSAT_wrapper.R")
-exists("DSSAT_wrapper")  # Should be TRUE
-```
-
-### During Calibration
-
-Monitor progress:
-```
-Iteration 1: criterion = 0.523
-Iteration 10: criterion = 0.412
-Iteration 20: criterion = 0.356
-...
-```
-
-**✓ Good**: Criterion decreases  
-**✗ Bad**: Criterion increases or stays constant
-
-### After Calibration
-
-Review results:
-```r
-# Parameter changes
-param_results <- data.frame(
-  Parameter = names(calib_results$final_values),
-  Initial = param_init,
-  Calibrated = calib_results$final_values,
-  Change_Percent = ((calib_results$final_values - param_init) / param_init) * 100
+# Download from GitHub
+download.file(
+  "https://raw.githubusercontent.com/DrAhmedKheir/DSSAT-wrapper/main/R/DSSAT_wrapper.R",
+  "DSSAT_wrapper.R"
 )
-print(param_results)
-```
-
-**✓ Good**: Parameters change 5-30%  
-**✗ Bad**: Parameters change <1% or hit bounds
-
----
-
-## 📊 Quick Visualization
-
-### After calibration completes:
-
-```r
-# Get final simulation
-sim_final <- DSSAT_wrapper(
-  param_values = calib_results$final_values,
-  sit_names = all_situations,
-  model_options = model_options
+download.file(
+  "https://raw.githubusercontent.com/DrAhmedKheir/DSSAT-wrapper/main/R/read_obs.R",
+  "read_obs.R"
 )
-
-# Dynamic plots
-plot(sim_final, obs = obs_list, type = "dynamic")
-
-# Scatter plots
-plot(sim_final, obs = obs_list, type = "scatter", all_situations = TRUE)
-
-# Statistics
-summary(sim_final, obs = obs_list, all_situations = TRUE)
 ```
 
----
-
-## ⏱️ Expected Timelines
-
-| Phase | Duration | What Happens |
-|-------|----------|--------------|
-| **Setup** | 10-30 min | Install packages, download files |
-| **Calibration** | 2-6 hours | DSSAT runs ~500 times |
-| **Results** | 30-60 min | Generate plots, review statistics |
-| **Total** | 3-7 hours | Complete professional calibration |
-
-**💡 Tip**: Run overnight or during lunch!
-
----
-
-## ⚠️ Common Issues & Fixes
-
-### Issue: "DSSAT_wrapper not found"
-```r
-# Fix:
-source("C:/DSSAT48/DSSAT_wrapper/DSSAT_wrapper.R")
-```
-
-### Issue: "Cannot install CroptimizR"
-```r
-# Fix: Install dependencies first
-install.packages(c("nloptr", "hydroGOF", "DiceDesign"))
-remotes::install_github("SticsRPacks/CroptimizR@*release")
-```
-
-### Issue: "Observed data has wrong format"
-```r
-# Check structure:
-str(obs_list)
-# Should be: List of 59 data frames
-# Each with: Date + variable columns
-```
-
-### Issue: "Calibration not converging"
-```r
-# Try:
-# 1. Reduce max iterations for testing
-optim_options = list(maxeval = 50)
-
-# 2. Adjust parameter bounds
-# 3. Start with fewer situations
-# 4. Check DSSAT runs successfully
-```
-
----
-
-## 📈 Success Metrics
-
-Your calibration is good when:
-
-| Metric | Target | Your Value |
-|--------|--------|------------|
-| **R²** | > 0.70 | _____ |
-| **nRMSE** | < 20% | _____ |
-| **Bias** | Near 0 | _____ |
-| **Parameter Change** | 5-30% | _____ |
-| **Convergence** | Yes | _____ |
-
----
-
-## 💾 Save Your Results
+### 3. Verify DSSAT Files (1 minute)
 
 ```r
-# Save everything
-save(calib_results, sim_final, obs_list,
-     file = file.path(output_dir, "calibration_complete.RData"))
-
-# Later, load with:
-load(file.path(output_dir, "calibration_complete.RData"))
+# Check if files exist
+file.exists("C:/DSSAT48/DSCSM048.EXE")              # Should be TRUE
+file.exists("C:/DSSAT48/Wheat/GMZA2001.WHX")        # Should be TRUE
+file.exists("C:/DSSAT48/Wheat/SIDS2001.WHX")        # Should be TRUE
+file.exists("C:/DSSAT48/Genotype/WHCER048.CUL")     # Should be TRUE
 ```
 
----
-
-## 🎨 Publication-Ready Plots
+### 4. Run Calibration (25 minutes)
 
 ```r
-# High-resolution plots
-library(ggplot2)
+setwd("path/to/your/project")
+source("calibrate_Sakha95_FINAL_CORRECTED.R")
 
-p <- plot(sim_final, obs = obs_list, type = "scatter", all_situations = TRUE)
-
-ggsave(filename = file.path(output_dir, "Figure1_scatter.png"),
-       plot = p[[1]],
-       width = 8, height = 6, dpi = 300, units = "in")
-
-ggsave(filename = file.path(output_dir, "Figure1_scatter.pdf"),
-       plot = p[[1]],
-       width = 8, height = 6, units = "in")
+# Wait for completion...
+# You should see:
+# ✓ Calibration successful!
+# Improvement: 69.2%
 ```
 
----
-
-## 📞 Help Resources
-
-| Resource | Link |
-|----------|------|
-| **CroptimizR Docs** | https://sticsrpacks.github.io/CroptimizR/ |
-| **CroPlotR Docs** | https://sticsrpacks.github.io/CroPlotR/ |
-| **DSSAT Wrapper** | https://github.com/DrAhmedKheir/DSSAT-wrapper |
-| **DSSAT Forum** | https://dssat.net/forum |
-
----
-
-## ✅ Pre-Flight Checklist
-
-**Print and check off before running:**
-
-### Files & Setup
-☐ Downloaded calibration script  
-☐ Downloaded README  
-☐ Downloaded DSSAT wrapper  
-☐ Installed DSSAT 4.8  
-☐ Installed R & RStudio  
-
-### Data Verification
-☐ Observed data file exists (218 obs)  
-☐ Experiment files exist (GMZA2001.WHX, SIDS2001.WHX)  
-☐ Weather files exist (.WHA)  
-☐ Cultivar file has SK0010  
-
-### Script Configuration
-☐ All paths verified  
-☐ All packages installed  
-☐ DSSAT wrapper loaded  
-☐ Data formatted correctly  
-☐ Parameters configured  
-
-### Ready to Calibrate!
-☐ Test simulation successful  
-☐ Calibration code uncommented  
-☐ Output directory created  
-☐ Time allocated (2-6 hours)  
-
----
-
-## 🎉 You're All Set!
-
-**Your 41 years of field data + Professional tools = Excellent calibration!**
-
-**Next Step**: Run the script and follow on-screen instructions!
+### 5. Generate Visualizations (25 minutes)
 
 ```r
-source("C:/DSSAT48/calibrate_Sakha95_CroptimizR.R")
+source("visualize_Sakha95_calibration.R")
+
+# Creates plots in: Sakha95_CORRECTED_results/plots/
 ```
+
+## Expected Output
+
+```
+Sakha95_CORRECTED_results/
+├── plots/
+│   ├── HWAM_scatter.png
+│   ├── ADAT_scatter.png
+│   ├── ALL_VARIABLES_scatter.png
+│   └── ... (10+ plots)
+├── calibrated_parameters.csv
+├── statistics_summary.csv
+└── calibration.RData
+```
+
+## Viewing Results
+
+```r
+# Load results
+load("Sakha95_CORRECTED_results/calibration.RData")
+
+# View parameter table
+print(param_table)
+
+# Open plots folder
+shell.exec("Sakha95_CORRECTED_results/plots")  # Windows
+# Or: system("open Sakha95_CORRECTED_results/plots")  # Mac
+```
+
+## Common Issues
+
+### Issue 1: "Cannot find DSSAT_wrapper.R"
+
+**Solution:**
+```r
+# Check current directory
+getwd()
+
+# List files
+list.files(pattern = "DSSAT")
+
+# If missing, re-download (see Step 2)
+```
+
+### Issue 2: "Calibration results not found"
+
+**Cause:** Calibration script didn't complete successfully
+
+**Solution:**
+```r
+# Run calibration first
+source("calibrate_Sakha95_FINAL_CORRECTED.R")
+
+# Then visualization
+source("visualize_Sakha95_calibration.R")
+```
+
+### Issue 3: Long runtime (>1 hour)
+
+**Check:**
+```r
+# Is DSSAT running?
+# Open Task Manager (Windows) and look for DSCSM048.EXE
+
+# Check for disk space
+# DSSAT writes many temporary files
+```
+
+## Next Steps
+
+1. **Review Documentation**: Read `CALIBRATION_COMPLETE_DOCUMENTATION.md`
+2. **Analyze Results**: Check scatter plots and statistics
+3. **Update Cultivar File**: Apply calibrated parameters to `WHCER048.CUL`
+4. **Validate**: Test with independent data
+5. **Publish**: Use plots in your manuscript
+
+## Need Help?
+
+- Check [Troubleshooting Guide](TROUBLESHOOTING.md)
+- Review [Full Documentation](CALIBRATION_COMPLETE_DOCUMENTATION.md)
+- Open a GitHub Issue
 
 ---
 
-**Quick Start Guide v1.0** | January 2026 | Sakha95 Wheat Calibration
+**Total Time: ~55 minutes (5 min setup + 25 min calibration + 25 min visualization)**
+
+✅ You're ready to go!
