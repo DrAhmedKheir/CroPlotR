@@ -1,0 +1,313 @@
+═══════════════════════════════════════════════════════════════
+HOW TO RUN SAKHA95 WHEAT CALIBRATION
+Updated: 2026-01-01
+═══════════════════════════════════════════════════════════════
+
+IMPORTANT: Your observed data has been updated with correct years!
+Each treatment now has its actual year from 1980-2020 (Gemiza) and 
+1982-2021 (Sids).
+
+═══════════════════════════════════════════════════════════════
+STEP 1: ORGANIZE YOUR FILES
+═══════════════════════════════════════════════════════════════
+
+Create a folder structure like this:
+
+C:\DSSAT48\
+├── calibrate_Sakha95_wheat.R    ← Main calibration script
+└── data\
+    └── Sakha95_observed_data.csv ← Your observed data (READY!)
+
+Or alternatively:
+
+C:\MyWheatCalibration\
+├── calibrate_Sakha95_wheat.R    ← Main calibration script
+└── data\
+    └── Sakha95_observed_data.csv ← Your observed data (READY!)
+
+
+═══════════════════════════════════════════════════════════════
+STEP 2: DOWNLOAD THE TWO FILES YOU NEED
+═══════════════════════════════════════════════════════════════
+
+From this workspace, download:
+
+1. calibrate_Sakha95_wheat.R (52 KB)
+   - This is the main calibration script
+   - Save it to: C:\DSSAT48\calibrate_Sakha95_wheat.R
+   
+2. data/Sakha95_observed_data.csv (11 KB)
+   - This contains your actual field data with CORRECT YEARS
+   - Save it to: C:\DSSAT48\data\Sakha95_observed_data.csv
+   - IMPORTANT: Create the "data" folder first!
+
+
+═══════════════════════════════════════════════════════════════
+STEP 3: VERIFY YOUR DATA FILE
+═══════════════════════════════════════════════════════════════
+
+Open: C:\DSSAT48\data\Sakha95_observed_data.csv
+
+Check that you see:
+✓ Gemiza data with years 1980-2020
+✓ Sids data with years 1982-2021
+✓ Variables: HWAM, H#AM, HWUM, ADAT, MDAT
+✓ Multiple treatments (T1, T2, T3, etc.)
+
+
+═══════════════════════════════════════════════════════════════
+STEP 4: INSTALL REQUIRED R PACKAGES (ONE TIME ONLY)
+═══════════════════════════════════════════════════════════════
+
+Open R or RStudio and run:
+
+install.packages(c("dplyr", "tidyr", "ggplot2"))
+
+This only needs to be done once!
+
+
+═══════════════════════════════════════════════════════════════
+STEP 5: RUN THE CALIBRATION
+═══════════════════════════════════════════════════════════════
+
+Option A: From RStudio (Recommended)
+────────────────────────────────────
+1. Open RStudio
+2. File → Open File
+3. Select: C:\DSSAT48\calibrate_Sakha95_wheat.R
+4. Click "Source" button (or press Ctrl+Shift+Enter)
+5. The script will automatically:
+   - Check DSSAT installation
+   - Load your observed data
+   - Run the calibration
+   - Generate reports and plots
+
+
+Option B: From R Console
+────────────────────────────────────
+1. Open R
+2. Set working directory:
+   setwd("C:/DSSAT48")
+   
+3. Run the script:
+   source("calibrate_Sakha95_wheat.R")
+   main()
+
+
+Option C: From Command Line / Terminal
+────────────────────────────────────
+Open Command Prompt and run:
+
+cd C:\DSSAT48
+Rscript calibrate_Sakha95_wheat.R
+
+
+═══════════════════════════════════════════════════════════════
+STEP 6: WHAT TO EXPECT
+═══════════════════════════════════════════════════════════════
+
+The script will:
+
+1. ✓ Check DSSAT Installation (5 seconds)
+   - Verify C:\DSSAT48 exists
+   - Check for WHCER048.CUL, .ECO, .SPE files
+   - Verify GMZA2001.WHX and SIDS2001.WHX files
+   - Confirm SK0010 cultivar code exists
+
+2. ✓ Load Observed Data (2 seconds)
+   - Read Sakha95_observed_data.csv
+   - Show data summary
+   - Verify 50 data points (23 Gemiza + 27 Sids)
+
+3. ✓ Run Calibration (15-30 minutes)
+   - Optimize 7 genetic coefficients
+   - Test multiple parameter combinations
+   - Show progress updates every 10 iterations
+
+4. ✓ Generate Reports (1 minute)
+   - Create performance metrics
+   - Generate comparison plots
+   - Write detailed calibration report
+
+
+═══════════════════════════════════════════════════════════════
+STEP 7: CHECK YOUR RESULTS
+═══════════════════════════════════════════════════════════════
+
+After completion, check the output folder:
+
+C:\DSSAT48\Sakha95_calibration_output\
+
+You will find:
+  • Sakha95_calibration_report.txt  ← START HERE! 
+  • Sakha95_calibrated_parameters.csv
+  • Sakha95_obs_vs_sim.csv
+  • plots\
+      ├── Sakha95_obs_vs_sim_scatter.png
+      ├── Sakha95_error_by_variable.png
+      └── Sakha95_parameter_comparison.png
+
+
+═══════════════════════════════════════════════════════════════
+STEP 8: UPDATE DSSAT WITH CALIBRATED COEFFICIENTS
+═══════════════════════════════════════════════════════════════
+
+1. BACKUP the original file:
+   Copy: C:\DSSAT48\Genotype\WHCER048.CUL
+   To:   C:\DSSAT48\Genotype\WHCER048_ORIGINAL.CUL
+
+2. Open WHCER048.CUL in Notepad++ or text editor
+
+3. Find the SK0010 line (Sakha95)
+
+4. Replace the genetic coefficients with the calibrated values
+   (The exact values will be in Sakha95_calibration_report.txt)
+
+5. Save the file
+
+6. Test in DSSAT!
+
+
+═══════════════════════════════════════════════════════════════
+TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════
+
+Problem: "cannot open file 'data/Sakha95_observed_data.csv'"
+Solution: 
+  - Make sure you created the "data" folder
+  - Verify the CSV file is in: C:\DSSAT48\data\
+  - Check that you saved the script in: C:\DSSAT48\
+
+Problem: "DSSAT directory not found"
+Solution:
+  - Verify DSSAT is installed at C:\DSSAT48
+  - If installed elsewhere, edit line 142 in the script:
+    DSSAT_DIR <- "C:/YourPath/DSSAT48"
+
+Problem: "Cultivar code SK0010 not found"
+Solution:
+  - Open C:\DSSAT48\Genotype\WHCER048.CUL
+  - Make sure there's a line starting with SK0010
+  - If not, add it manually or contact DSSAT support
+
+Problem: Package installation fails
+Solution:
+  - Check internet connection
+  - Try: install.packages("packagename", dependencies=TRUE)
+  - Or download packages manually from CRAN
+
+Problem: Calibration takes too long (>1 hour)
+Solution:
+  - This is normal for multi-site calibration
+  - You can reduce MAX_ITERATIONS (line 223) to 100
+  - Trade-off: faster but possibly less accurate
+
+
+═══════════════════════════════════════════════════════════════
+DATA FILE FORMAT
+═══════════════════════════════════════════════════════════════
+
+Your Sakha95_observed_data.csv has the correct format:
+
+Columns:
+  Location   : Gemiza or Sids
+  Experiment : GMZA2001 or SIDS2001
+  Treatment  : T1, T2, T3, etc.
+  Year       : Actual year (1980-2021)
+  Date       : Observation date (YYYY-MM-DD)
+  Variable   : HWAM, H#AM, HWUM, ADAT, MDAT
+  Value      : Measured value
+  SD         : Standard deviation
+
+Example rows:
+Gemiza,GMZA2001,T1,1980,1980-04-29,HWAM,5129.5,250
+Sids,SIDS2001,T1,1982,1982-04-28,HWAM,7067,353
+
+
+═══════════════════════════════════════════════════════════════
+WHAT EACH VARIABLE MEANS
+═══════════════════════════════════════════════════════════════
+
+HWAM  : Grain yield (kg/ha)
+        Your range: 5,129 - 11,952 kg/ha
+
+H#AM  : Grain number per m² (grains/m²)
+        Your range: 111,707 - 231,577 grains/m²
+
+HWUM  : Individual grain weight (mg)
+        Your range: 39.5 - 170 mg
+
+ADAT  : Anthesis date (Day of Year)
+        Your range: Day 77 - Day 132
+
+MDAT  : Maturity date (Day of Year)
+        Your range: Day 88 - Day 135
+
+
+═══════════════════════════════════════════════════════════════
+GENETIC COEFFICIENTS BEING CALIBRATED
+═══════════════════════════════════════════════════════════════
+
+P1V    : Vernalization requirement (10-35 days)
+         Controls response to cold temperatures
+
+P1D    : Photoperiod sensitivity (50-85%)
+         Controls response to day length
+
+P5     : Grain filling duration (450-600 °C·d)
+         How long grain filling takes
+
+G1     : Kernel number coefficient (20-28)
+         Controls how many grains per spike
+
+G2     : Kernel weight potential (40-50 mg)
+         Maximum individual grain weight
+
+G3     : Stem weight (1.5-2.5 g)
+         Non-grain biomass allocation
+
+PHINT  : Phylochron interval (85-105 °C·d)
+         Time between leaf appearances
+
+
+═══════════════════════════════════════════════════════════════
+EXPECTED RUNTIME
+═══════════════════════════════════════════════════════════════
+
+On a typical modern computer:
+  - Fast machine:     15-20 minutes
+  - Average machine:  20-35 minutes
+  - Older machine:    35-60 minutes
+
+The script will show progress updates every 10 iterations.
+
+
+═══════════════════════════════════════════════════════════════
+QUESTIONS?
+═══════════════════════════════════════════════════════════════
+
+If you encounter issues:
+1. Check the troubleshooting section above
+2. Read the error message carefully
+3. Verify all file paths are correct
+4. Make sure DSSAT is properly installed
+5. Confirm R packages are installed
+
+
+═══════════════════════════════════════════════════════════════
+READY TO RUN!
+═══════════════════════════════════════════════════════════════
+
+Your data has been updated with the CORRECT YEARS for each treatment.
+Everything is ready to go!
+
+1. Download the two files (script + data CSV)
+2. Put them in the right locations
+3. Run the script
+4. Wait for results
+5. Check the calibration report
+6. Update DSSAT
+
+Good luck with your Sakha95 wheat calibration!
+
+═══════════════════════════════════════════════════════════════

@@ -1,0 +1,130 @@
+╔═══════════════════════════════════════════════════════════════╗
+║                                                               ║
+║        SAKHA95 CALIBRATION - QUICK REFERENCE                 ║
+║        Updated: 2026-01-01 with CORRECT YEARS                ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝
+
+WHAT WAS FIXED?
+═══════════════════════════════════════════════════════════════
+✅ Each treatment now has its ACTUAL YEAR (1980-2021)
+✅ Script auto-detects its location (no more path issues)
+✅ Ready to run multi-year calibration (41 years of data!)
+
+
+FILES YOU NEED (Download from workspace):
+═══════════════════════════════════════════════════════════════
+1. calibrate_Sakha95_wheat.R        (53 KB) ← Main script
+2. data/Sakha95_observed_data.csv   (11 KB) ← Your data
+
+
+WHERE TO SAVE THEM:
+═══════════════════════════════════════════════════════════════
+C:\DSSAT48\
+├── calibrate_Sakha95_wheat.R
+└── data\
+    └── Sakha95_observed_data.csv
+
+
+HOW TO RUN (3 METHODS):
+═══════════════════════════════════════════════════════════════
+
+METHOD 1: RStudio (EASIEST)
+──────────────────────────────────────────────────────────────
+1. Open RStudio
+2. File → Open → calibrate_Sakha95_wheat.R
+3. Click "Source" button
+   (or press Ctrl+Shift+Enter)
+4. Wait 20-30 minutes
+5. Done!
+
+
+METHOD 2: R Console
+──────────────────────────────────────────────────────────────
+setwd("C:/DSSAT48")
+source("calibrate_Sakha95_wheat.R")
+main()
+
+
+METHOD 3: Command Line
+──────────────────────────────────────────────────────────────
+cd C:\DSSAT48
+Rscript calibrate_Sakha95_wheat.R
+
+
+FIRST TIME SETUP (One time only):
+═══════════════════════════════════════════════════════════════
+Install required packages in R:
+
+install.packages(c("dplyr", "tidyr", "ggplot2"))
+
+
+YOUR DATA SUMMARY:
+═══════════════════════════════════════════════════════════════
+Locations:  Gemiza + Sids
+Treatments: 59 (26 Gemiza + 33 Sids)
+Years:      1980-2021 (41 years!)
+Records:    262 observations
+Variables:  HWAM, H#AM, HWUM, ADAT, MDAT
+
+
+WHAT YOU'LL GET:
+═══════════════════════════════════════════════════════════════
+Output folder: C:\DSSAT48\Sakha95_calibration_output\
+
+Files:
+  • Sakha95_calibration_report.txt ← READ THIS FIRST!
+  • Sakha95_calibrated_parameters.csv
+  • Sakha95_obs_vs_sim.csv
+  • plots/ (3 PNG files)
+
+
+GENETIC COEFFICIENTS TO BE CALIBRATED:
+═══════════════════════════════════════════════════════════════
+P1V    → Vernalization requirement
+P1D    → Photoperiod sensitivity  
+P5     → Grain filling duration
+G1     → Kernel number potential
+G2     → Kernel weight potential
+G3     → Stem weight
+PHINT  → Leaf appearance rate
+
+
+EXPECTED RUNTIME:
+═══════════════════════════════════════════════════════════════
+Fast PC:     15-20 minutes
+Average PC:  20-35 minutes
+Older PC:    35-60 minutes
+
+
+AFTER CALIBRATION:
+═══════════════════════════════════════════════════════════════
+1. Open: Sakha95_calibration_report.txt
+2. Check performance metrics (MAPE, RMSE)
+3. Backup original: WHCER048.CUL → WHCER048_ORIGINAL.CUL
+4. Update WHCER048.CUL with new coefficients
+5. Test in DSSAT!
+
+
+TROUBLESHOOTING:
+═══════════════════════════════════════════════════════════════
+Error: "cannot open file"
+Fix:   Create data\ folder, put CSV inside
+
+Error: "DSSAT directory not found"
+Fix:   Verify C:\DSSAT48 exists
+       Or edit line 142 in script
+
+Error: "Package not found"
+Fix:   Run: install.packages("packagename")
+
+
+HELP:
+═══════════════════════════════════════════════════════════════
+Detailed instructions: HOW_TO_RUN_CALIBRATION.txt
+What was updated:       UPDATE_SUMMARY.txt
+
+
+═══════════════════════════════════════════════════════════════
+                    READY TO RUN!
+═══════════════════════════════════════════════════════════════

@@ -1,0 +1,217 @@
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                                                                               ║
+║        WHEAT CALIBRATION FOR GEMIZA - QUICK SETUP GUIDE                       ║
+║                                                                               ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+📍 LOCATION: Gemiza, Egypt (GMZA)
+🌾 CROP: Wheat
+📅 SEASON: 2001
+🔧 MODEL: CERES-Wheat (WHCER048)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ ALREADY CONFIGURED FOR YOU:
+
+  ✓ DSSAT Directory: C:/Users/DELL/OneDrive/Desktop/originaldssat
+  ✓ Experiment File: GMZA2001.WHX
+  ✓ Weather File: GMZA2001.WHA
+  ✓ Cultivar File: WHCER048.CUL
+  ✓ Location: Gemiza, Egypt
+  ✓ Parameters: Optimized for Egyptian wheat
+
+═══════════════════════════════════════════════════════════════════════════════
+
+⚠️  3 THINGS YOU MUST DO BEFORE RUNNING:
+
+┌───────────────────────────────────────────────────────────────────────────┐
+│ 1. UPDATE CULTIVAR NAME IN SCRIPT                                         │
+└───────────────────────────────────────────────────────────────────────────┘
+
+   Open: calibrate_wheat_GMZA2001.R
+   Find line 40: CULTIVAR_NAME <- "IB0001"
+   
+   Change to YOUR cultivar from WHCER048.CUL:
+   
+   Examples for Egyptian wheat:
+     CULTIVAR_NAME <- "Sakha93"
+     CULTIVAR_NAME <- "Gemiza9"
+     CULTIVAR_NAME <- "Sids1"
+     CULTIVAR_NAME <- "Giza168"
+   
+   How to find yours:
+     1. Open: C:\Users\DELL\OneDrive\Desktop\originaldssat\Genotype\WHCER048.CUL
+     2. Look in first column for cultivar codes
+     3. Copy the exact code to the script
+
+┌───────────────────────────────────────────────────────────────────────────┐
+│ 2. ADD YOUR OBSERVED DATA FROM GEMIZA                                     │
+└───────────────────────────────────────────────────────────────────────────┘
+
+   Open: data/wheat_GMZA_observed.csv
+   
+   Replace example values with YOUR field measurements:
+   
+   Required format:
+   Experiment,Treatment,Date,Variable,Value,SD
+   GMZA2001,T1,2001-04-15,HWAM,6500,400
+   GMZA2001,T1,2001-04-15,CWAM,14000,850
+   ...
+   
+   Variables you can include:
+   
+   ┌────────┬─────────────────────────────┬──────────────┬─────────┐
+   │ Code   │ Description                 │ Typical Range│ Unit    │
+   ├────────┼─────────────────────────────┼──────────────┼─────────┤
+   │ HWAM   │ Grain yield                 │ 4,000-8,000  │ kg/ha   │
+   │ CWAM   │ Biomass                     │ 10,000-18,000│ kg/ha   │
+   │ LAIX   │ Max LAI                     │ 4.0-6.5      │ m²/m²   │
+   │ GNAM   │ Grain N                     │ 100-180      │ kg/ha   │
+   │ ADAT   │ Anthesis date               │ 75-95        │ DAP     │
+   │ MDAT   │ Maturity date               │ 120-140      │ DAP     │
+   └────────┴─────────────────────────────┴──────────────┴─────────┘
+   
+   Date format: YYYY-MM-DD (e.g., 2001-04-15)
+   
+   Tips:
+   • Include at least: HWAM, ADAT, MDAT
+   • More variables = better calibration
+   • Add multiple treatments if you have them
+
+┌───────────────────────────────────────────────────────────────────────────┐
+│ 3. VERIFY YOUR DSSAT FILES EXIST                                          │
+└───────────────────────────────────────────────────────────────────────────┘
+
+   Check these files are in your DSSAT folder:
+   
+   C:\Users\DELL\OneDrive\Desktop\originaldssat\
+   ├── ✓ GMZA2001.WHX (or GMZA2001.WHX.txt)
+   ├── ✓ GMZA2001.WHA (or GMZA2001.WHA.txt)
+   └── Genotype\
+       ├── ✓ WHCER048.CUL
+       └── ✓ WHCER048.ECO
+   
+   ⚠️  If files have .txt extension:
+       Option A: Remove .txt extension
+       Option B: Update script lines 33-36 to include .txt
+
+═══════════════════════════════════════════════════════════════════════════
+
+🚀 HOW TO RUN:
+
+  OPTION 1 - From R Console:
+  
+    setwd("path/to/workspace")
+    source("calibrate_wheat_GMZA2001.R")
+    main()
+  
+  OPTION 2 - From Command Line:
+  
+    cd path\to\workspace
+    Rscript calibrate_wheat_GMZA2001.R
+  
+  OPTION 3 - From RStudio:
+  
+    1. Open calibrate_wheat_GMZA2001.R
+    2. Click "Source" button
+    3. Or type: main()
+
+═══════════════════════════════════════════════════════════════════════════
+
+📊 WHAT HAPPENS WHEN YOU RUN IT:
+
+  Step 1: Checks DSSAT installation ✓
+  Step 2: Loads your observed data from Gemiza ✓
+  Step 3: Runs optimization (finds best parameters) ✓
+  Step 4: Generates reports and plots ✓
+  
+  Time: Usually 5-15 minutes depending on your computer
+
+═══════════════════════════════════════════════════════════════════════════
+
+📁 OUTPUT FILES (saved to wheat_GMZA_calibration_output/):
+
+  • calibrated_parameters_GMZA.csv    → Optimized genetic coefficients
+  • obs_vs_sim_GMZA.csv              → Observed vs simulated comparison
+  • calibration_report_GMZA.txt      → Complete report with instructions
+  • plots/obs_vs_sim_scatter.png     → Visual comparison
+
+═══════════════════════════════════════════════════════════════════════════
+
+🎯 AFTER CALIBRATION:
+
+  1. Open: wheat_GMZA_calibration_output/calibration_report_GMZA.txt
+  
+  2. Check performance:
+     • MAPE < 10% = Excellent
+     • MAPE < 20% = Good
+     • MAPE < 30% = Acceptable
+  
+  3. Update your WHCER048.CUL file with the calibrated parameters
+     (Report shows exactly what values to enter)
+  
+  4. Validate with independent data before operational use
+
+═══════════════════════════════════════════════════════════════════════════
+
+❓ COMMON ISSUES:
+
+  Issue: "DSSAT directory not found"
+  Fix: Check path on line 26 of script matches your DSSAT location
+  
+  Issue: "Experiment file not found"
+  Fix: Files might have .txt extension - add it to EXPERIMENT_FILE name
+  
+  Issue: "No observed data"
+  Fix: Fill data/wheat_GMZA_observed.csv with your measurements
+  
+  Issue: "Not converging"
+  Fix: 1) Increase MAX_ITERATIONS (line 73) to 200
+       2) Widen parameter ranges (lines 46-54)
+       3) Check observed data quality
+
+═══════════════════════════════════════════════════════════════════════════
+
+📚 FILES YOU HAVE:
+
+  ✓ calibrate_wheat_GMZA2001.R       Main calibration script (customized)
+  ✓ data/wheat_GMZA_observed.csv     Template for your data (FILL THIS!)
+  ✓ README_WHEAT_GMZA.md             Detailed documentation
+
+═══════════════════════════════════════════════════════════════════════════
+
+📋 CHECKLIST:
+
+  [ ] Opened calibrate_wheat_GMZA2001.R
+  [ ] Updated CULTIVAR_NAME (line 40)
+  [ ] Opened data/wheat_GMZA_observed.csv
+  [ ] Entered MY observed data from Gemiza
+  [ ] Verified DSSAT files exist
+  [ ] Have at least HWAM, ADAT, MDAT measurements
+  
+  ✓ ALL DONE? Run: main()
+
+═══════════════════════════════════════════════════════════════════════════
+
+🌾 EGYPTIAN WHEAT REFERENCE:
+
+  Common cultivars in Egypt:
+    • Sakha series: 93, 94, 95
+    • Gemiza series: 9, 10, 11, 12
+    • Sids series: 1, 12, 13, 14
+    • Giza series: 168, 171
+    • Misr series: 1, 2, 3
+  
+  Typical growing season:
+    • Planting: November-December
+    • Anthesis: March
+    • Harvest: April-May
+    • Duration: ~140-150 days
+
+═══════════════════════════════════════════════════════════════════════════
+
+Need detailed help? See: README_WHEAT_GMZA.md
+
+Ready to calibrate? Complete the checklist above, then run the script!
+
+═══════════════════════════════════════════════════════════════════════════

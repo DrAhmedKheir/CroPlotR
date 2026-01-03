@@ -1,0 +1,255 @@
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                                                                               ║
+║            SAKHA95 WHEAT CALIBRATION - QUICK START                            ║
+║                                                                               ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+🌾 CULTIVAR: Sakha95 (Code: SK0010)
+📍 LOCATIONS: Gemiza (23 pts) + Sids (27 pts) = 50 total
+🔧 MODEL: CERES-Wheat (WHCER048)
+💾 DSSAT: C:\DSSAT48
+
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ YOUR FILE PATHS (Already configured in script):
+
+  C:\DSSAT48\Genotype\WHCER048.CUL  ← SK0010 = Sakha95
+  C:\DSSAT48\Genotype\WHCER048.ECO
+  C:\DSSAT48\Genotype\WHCER048.SPE
+  C:\DSSAT48\Wheat\GMZA2001.WHX     ← Gemiza experiment
+  C:\DSSAT48\Wheat\GMZA2001.WHA     ← Gemiza weather
+  C:\DSSAT48\Wheat\SIDS2001.WHX     ← Sids experiment
+  C:\DSSAT48\Wheat\SIDS2001.WHA     ← Sids weather
+
+═══════════════════════════════════════════════════════════════════════════════
+
+⚠️  BEFORE RUNNING - DO THIS FIRST:
+
+┌───────────────────────────────────────────────────────────────────────────┐
+│ STEP 1: FILL IN YOUR OBSERVED DATA (CRITICAL!)                            │
+└───────────────────────────────────────────────────────────────────────────┘
+
+  File: data/Sakha95_observed_data.csv
+  
+  Current Status: ⚠️  Contains EXAMPLE template data
+  Required: YOUR actual 50 field measurements from Gemiza and Sids
+  
+  What you need:
+  ┌──────────┬─────────────┬─────────┬──────────────────────────────┐
+  │ Location │ Experiment  │ Points  │ Variables                    │
+  ├──────────┼─────────────┼─────────┼──────────────────────────────┤
+  │ Gemiza   │ GMZA2001    │   23    │ HWAM, CWAM, LAIX,           │
+  │ Sids     │ SIDS2001    │   27    │ GNAM, ADAT, MDAT            │
+  │ TOTAL    │             │   50    │ (mix of treatments/dates)    │
+  └──────────┴─────────────┴─────────┴──────────────────────────────┘
+  
+  Format (CSV):
+    Location,Experiment,Treatment,Date,Variable,Value,SD
+    Gemiza,GMZA2001,T1,2001-04-10,HWAM,6800,420
+    Gemiza,GMZA2001,T1,2001-04-10,CWAM,15500,920
+    Sids,SIDS2001,T1,2001-04-12,HWAM,6500,400
+    ...
+  
+  Variables:
+    HWAM  : Grain yield (kg/ha) - typical: 5,500-8,000
+    CWAM  : Biomass (kg/ha) - typical: 12,000-18,000
+    LAIX  : Max LAI - typical: 4.5-6.5
+    GNAM  : Grain N (kg/ha) - typical: 120-180
+    ADAT  : Anthesis DAP - typical: 80-95
+    MDAT  : Maturity DAP - typical: 125-140
+
+┌───────────────────────────────────────────────────────────────────────────┐
+│ STEP 2: VERIFY DSSAT FILES EXIST                                          │
+└───────────────────────────────────────────────────────────────────────────┘
+
+  Check these files are on your computer:
+    [ ] C:\DSSAT48\ directory exists
+    [ ] C:\DSSAT48\Genotype\WHCER048.CUL exists
+    [ ] C:\DSSAT48\Wheat\GMZA2001.WHX exists
+    [ ] C:\DSSAT48\Wheat\GMZA2001.WHA exists
+    [ ] C:\DSSAT48\Wheat\SIDS2001.WHX exists
+    [ ] C:\DSSAT48\Wheat\SIDS2001.WHA exists
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🚀 HOW TO RUN:
+
+  OPTION 1 - R Console:
+    source("calibrate_Sakha95_wheat.R")
+    main()
+  
+  OPTION 2 - RStudio:
+    1. Open calibrate_Sakha95_wheat.R
+    2. Click "Source" button
+    3. Or type: main()
+  
+  OPTION 3 - Command Line:
+    cd path\to\workspace
+    Rscript calibrate_Sakha95_wheat.R
+
+═══════════════════════════════════════════════════════════════════════════════
+
+⏱️  WHAT TO EXPECT:
+
+  Phase 1: Verification           (~1 min)
+    ✓ Checks DSSAT installation
+    ✓ Verifies all 6 files exist
+    ✓ Loads your observed data
+  
+  Phase 2: Calibration            (5-15 min)
+    ✓ Optimizes 7 genetic coefficients
+    ✓ Uses both locations simultaneously
+    ✓ Iterative optimization process
+  
+  Phase 3: Report Generation      (~1-2 min)
+    ✓ Creates plots and statistics
+    ✓ Saves all results
+  
+  Total Time: ~7-18 minutes
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📁 OUTPUT FILES (Sakha95_calibration_output/):
+
+  ⭐ Sakha95_calibration_report.txt      READ THIS FIRST!
+     • Complete summary
+     • Performance metrics (MAPE, RMSE)
+     • Exact values for WHCER048.CUL
+     • Step-by-step update instructions
+  
+  📊 Sakha95_calibrated_parameters.csv
+     • Optimized genetic coefficients
+     • Before/after comparison
+  
+  📈 Sakha95_obs_vs_sim.csv
+     • Model performance by location
+     • Error analysis
+  
+  📉 plots/
+     • Sakha95_obs_vs_sim_scatter.png    (visual comparison)
+     • Sakha95_error_by_variable.png     (error bars)
+     • Sakha95_parameter_comparison.png  (parameter changes)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📊 UNDERSTANDING RESULTS:
+
+  MAPE (Mean Absolute Percent Error):
+    < 10%  = ✓ EXCELLENT
+    10-15% = ✓ VERY GOOD
+    15-20% = ✓ GOOD
+    20-30% = ⚠ ACCEPTABLE
+    > 30%  = ✗ POOR (needs improvement)
+  
+  What to check:
+    ✓ Overall MAPE < 20%
+    ✓ Similar MAPE for Gemiza and Sids
+    ✓ Good fit for yield (HWAM)
+    ✓ Good fit for phenology (ADAT, MDAT)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🔧 UPDATING DSSAT:
+
+  The calibration report tells you EXACTLY what to do:
+  
+  1. Backup original:
+     Copy C:\DSSAT48\Genotype\WHCER048.CUL
+     To C:\DSSAT48\Genotype\WHCER048_ORIGINAL.CUL
+  
+  2. Open file in Notepad
+  
+  3. Find cultivar SK0010 (Sakha95)
+  
+  4. Update 7 coefficient columns with calibrated values
+     (Report shows exact values to enter)
+  
+  5. Save file
+  
+  6. Test in DSSAT
+
+═══════════════════════════════════════════════════════════════════════════════
+
+❓ QUICK TROUBLESHOOTING:
+
+  Problem: "DSSAT directory not found"
+  Solution: Check C:\DSSAT48 exists
+            If elsewhere, edit line 129 in script
+  
+  Problem: "Insufficient observed data"
+  Solution: Fill data/Sakha95_observed_data.csv
+            Need at least 10 observations total
+            Ideally 50 (23 Gemiza + 27 Sids)
+  
+  Problem: "SK0010 not found"
+  Solution: Open WHCER048.CUL and search for "Sakha"
+            If not there, add it first
+  
+  Problem: "Poor calibration (high MAPE)"
+  Solution: 1. Check data quality
+            2. Increase MAX_ITERATIONS to 300
+            3. Widen parameter ranges
+            4. Review observed data for errors
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📚 FILES YOU HAVE:
+
+  ✓ calibrate_Sakha95_wheat.R          Main calibration script
+  ✓ data/Sakha95_observed_data.csv     Your data template (FILL THIS!)
+  ✓ SAKHA95_CALIBRATION_GUIDE.md       Comprehensive documentation
+  ✓ SAKHA95_QUICK_START.txt            This quick reference
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📋 PRE-FLIGHT CHECKLIST:
+
+  [ ] Filled data/Sakha95_observed_data.csv with MY field data
+  [ ] Have at least 50 observations (23 Gemiza + 27 Sids)
+  [ ] Verified C:\DSSAT48 directory exists
+  [ ] Checked all 6 DSSAT files exist
+  [ ] Included HWAM, ADAT, MDAT at minimum
+  [ ] Have multiple treatments/dates per location
+  
+  ✅ ALL CHECKED? You're ready to run!
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🎯 GENETIC COEFFICIENTS (What gets calibrated):
+
+  P1V    : Vernalization requirement (0-45 days)
+  P1D    : Photoperiod sensitivity (40-90%)
+  P5     : Grain filling duration (450-650 °C·d)
+  G1     : Kernel number coefficient (18-30)
+  G2     : Kernel weight (38-52 mg)
+  G3     : Stem weight (1.5-3.0 g)
+  PHINT  : Phylochron interval (85-105 °C·d)
+  
+  These 7 parameters define Sakha95 growth characteristics
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🌟 SUCCESS CRITERIA:
+
+  After calibration, you should have:
+  ✓ MAPE < 20% for both locations
+  ✓ Reasonable parameter values
+  ✓ Good yield predictions
+  ✓ Accurate phenology dates
+  ✓ Updated WHCER048.CUL file
+  ✓ Documented calibration process
+  
+  Next: VALIDATE with independent data!
+
+═══════════════════════════════════════════════════════════════════════════════
+
+Need detailed help? Read: SAKHA95_CALIBRATION_GUIDE.md
+
+Ready to start? 
+  1. Fill your data: data/Sakha95_observed_data.csv
+  2. Run: main()
+  3. Review: Sakha95_calibration_report.txt
+
+═══════════════════════════════════════════════════════════════════════════════
+
+Version 1.0 | 2026-01-01 | Sakha95 Multi-Site Calibration
