@@ -45,9 +45,17 @@ cat("Step 2: Loading calibration results...\n")
 # Set working directory
 setwd("D:/HourlyHDW/Calibrationwthfiles/DSSATWrapper")
 
-# Load DSSAT wrapper functions
-source("R/DSSAT_wrapper.R")
-source("R/read_obs.R")
+# Load DSSAT wrapper functions (with fallback)
+if (file.exists("R/DSSAT_wrapper.R")) {
+  source("R/DSSAT_wrapper.R", verbose = FALSE)
+  source("R/read_obs.R", verbose = FALSE)
+  cat("  ✓ Loaded DSSAT wrapper from R/ subdirectory\n")
+} else if (file.exists("DSSAT_wrapper.R")) {
+  source("DSSAT_wrapper.R", verbose = FALSE)
+  source("read_obs.R", verbose = FALSE)
+  cat("  ✓ Loaded DSSAT wrapper from current directory\n")
+} else {
+  stop("ERROR: Cannot find DSSAT_wrapper.R! Please check your working directory.")
 
 # Load calibration results
 if (!file.exists("Sakha95_CORRECTED_results/calibration.RData")) {
@@ -75,6 +83,20 @@ print(round(initial_params, 2))
 cat("\n  Calibrated parameters loaded:\n")
 print(round(calibrated_params, 2))
 cat("\n  ✓ Results loaded\n\n")
+
+# Define model_options (should match calibration script)
+model_options <- list(
+  DSSAT_path = 'C:/DSSAT48',
+  DSSAT_exe = 'DSCSM048.EXE',
+  Crop = "Wheat",
+  ecotype_filename = "WHCER048.ECO",
+  cultivar_filename = "WHCER048.CUL",
+  ecotype = "CAWH01",
+  cultivar = "Sakha95",  # Use VRNAME (from successful calibration)
+  suppress_output = TRUE
+)
+
+cat("  Model options configured (cultivar: Sakha95)\n\n")
 
 # ==============================================================================
 # STEP 3: LOAD OBSERVATIONS
